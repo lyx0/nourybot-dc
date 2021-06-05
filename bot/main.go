@@ -23,8 +23,10 @@ func Connect() {
 		log.Fatal("Error authenticating with discord, is our token invalid?")
 	}
 
-	// Register the messageCreate func as a callback for messageCreate events.
-	dcb.AddHandler(handlers.MessageCreate)
+	// Register funcs as callbacks for events.
+	dcb.AddHandler(
+		handlers.HandleMessage,
+	)
 
 	dcb.Identify.Intents = discordgo.IntentsGuildMessages
 
