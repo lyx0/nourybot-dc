@@ -9,6 +9,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
+	handlers "github.com/lyx0/nourybot-dc/handlers"
 )
 
 func Connect() {
@@ -23,7 +24,7 @@ func Connect() {
 	}
 
 	// Register the messageCreate func as a callback for messageCreate events.
-	dcb.AddHandler(messageCreate)
+	dcb.AddHandler(handlers.MessageCreate)
 
 	dcb.Identify.Intents = discordgo.IntentsGuildMessages
 
@@ -38,20 +39,4 @@ func Connect() {
 	<-sc
 
 	dcb.Close()
-}
-
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	// Ignore own emssages
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-	// Message containing "ping"
-	if m.Content == "!ping" {
-		s.ChannelMessageSend(m.ChannelID, "Pong!")
-	}
-
-	if m.Content == "!pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
-	}
-
 }
