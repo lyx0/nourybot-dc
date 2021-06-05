@@ -46,28 +46,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	// Message containing "ping"
-	if m.Content == "ping" {
-		return
+	if m.Content == "!ping" {
+		s.ChannelMessageSend(m.ChannelID, "Pong!")
 	}
 
-	// Create a priate channel with the user who sent the message
-	channel, err := s.UserChannelCreate(m.Author.ID)
-	if err != nil {
-		fmt.Println("error creating channel: ", err)
-		s.ChannelMessageSend(
-			m.ChannelID,
-			"Something went wrong while sending the DM!",
-		)
-		return
+	if m.Content == "!pong" {
+		s.ChannelMessageSend(m.ChannelID, "Ping!")
 	}
 
-	// Send message through the channel we created
-	_, err = s.ChannelMessageSend(channel.ID, "Pong!")
-	if err != nil {
-		fmt.Println("error sending DM message: ", err)
-		s.ChannelMessageSend(
-			m.ChannelID,
-			"Failed to send you a DM.",
-		)
-	}
 }
