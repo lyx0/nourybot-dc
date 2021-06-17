@@ -1,9 +1,31 @@
 package main
 
 import (
-	bot "github.com/lyx0/nourybot-dc/bot"
+	"github.com/bwmarrin/discordgo"
+	"github.com/gempir/go-twitch-irc/v2"
+	"github.com/lyx0/nourybot-dc/bot"
+	"github.com/lyx0/nourybot-dc/config"
+	"github.com/lyx0/nourybot-dc/db"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	bot.Connect()
+	cfg := config.LoadConfig()
+
+	sqlClient := db.Connect(cfg)
+	defer sqlClient.Close()
+
+	twitchClient := twitch.NewClient(cfg.Username, cfg.Oauth)
+	discordClient, err := discordgo.New("Bot " + cfg.DC_AUTH)
+	if err != nil {
+		log.Fatal("Couldn't connect to Discord", err)
+	}
+
+	bot := bot.NewBot(cfg, twitchClient, discordClient, sqlClient)
+
+	err = bot.Connect()
+	if err != nil {
+		log.Fatal("Couldn't connect to Twitch", err)
+	}
+
 }

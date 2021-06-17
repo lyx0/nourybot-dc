@@ -15,5 +15,5 @@
 # vendor/
 
 .env
-
-nourybot-dc
+joinraid
+.json
