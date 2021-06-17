@@ -51,7 +51,7 @@ func (b *Bot) discordMessageCreate(s *discordgo.Session, m *discordgo.MessageCre
 	}
 }
 
-func (b *Bot) Connect() error {
+func (b *Bot) ConnectTwitch() error {
 	log.Info("xd")
 	twitchClient := b.newTwitchClient()
 
@@ -64,8 +64,12 @@ func (b *Bot) Connect() error {
 		log.Fatal(err)
 		return err
 	}
+	log.Info("Connected to Twitch")
+	return err
+}
 
-	log.Info("Connected to Twitch.")
+func (b *Bot) ConnectDiscord() error {
+	log.Info("xd")
 
 	discordClient := b.newDiscordClient()
 
@@ -73,7 +77,7 @@ func (b *Bot) Connect() error {
 
 	discordClient.Identify.Intents = discordgo.IntentsGuildMessages
 
-	err = discordClient.Open()
+	err := discordClient.Open()
 	if err != nil {
 		log.Fatal("Error connecting to Discord: ", err)
 	}

@@ -23,9 +23,14 @@ func main() {
 
 	bot := bot.NewBot(cfg, twitchClient, discordClient, sqlClient)
 
-	err = bot.Connect()
+	err = bot.ConnectTwitch()
 	if err != nil {
 		log.Fatal("Couldn't connect to Twitch", err)
+	}
+
+	err = bot.ConnectDiscord()
+	if err != nil {
+		log.Fatal("Couldn't connect to Discord", err)
 	}
 
 }
