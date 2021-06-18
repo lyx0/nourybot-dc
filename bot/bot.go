@@ -5,7 +5,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	twitch "github.com/gempir/go-twitch-irc/v2"
-	"github.com/lyx0/nourybot-dc/commands"
 	"github.com/lyx0/nourybot-dc/config"
 	"github.com/lyx0/nourybot-dc/handlers"
 	log "github.com/sirupsen/logrus"
@@ -54,9 +53,9 @@ func (b *Bot) ConnectTwitch() error {
 
 	twitchClient.Join("nouryqt")
 	twitchClient.Say("nouryqt", "xd")
-	twitchClient.OnPrivateMessage(b.onPrivateMesssage)
+	twitchClient.OnPrivateMessage(b.twitchMessage)
 
-	twitchClient.OnWhisperMessage(b.onWhisperMessage)
+	twitchClient.OnWhisperMessage(b.twitchWhisper)
 
 	err := twitchClient.Connect()
 	if err != nil {
@@ -85,18 +84,16 @@ func (b *Bot) ConnectDiscord() error {
 	return err
 }
 
-func (b *Bot) onPrivateMesssage(message twitch.PrivateMessage) {
-	if message.Message[:2] == "()" {
-		b.handleCommand(message)
-	}
-	log.Info(message)
+func (b *Bot) twitchMessage(message twitch.PrivateMessage) {
+	handlers.TwitchMessage(message)
 }
 
-func (b *Bot) handleCommand(message twitch.PrivateMessage) {
-	commands.HandleCommand(message)
-}
+// func (b *Bot) handleCommand(message twitch.PrivateMessage) {
+// 	commands.HandleCommand(message)
+// }
 
-func (b *Bot) onWhisperMessage(whisper twitch.WhisperMessage) {
+func (b *Bot) twitchWhisper(whisper twitch.WhisperMessage) {
+	// handlers.twitchWhisper(whisper)
 	log.Info(whisper)
 }
 
