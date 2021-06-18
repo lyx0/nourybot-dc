@@ -39,22 +39,21 @@ func (b *Bot) newDiscordClient() *discordgo.Session {
 	}
 
 	return discordClient
-
 }
 
-func (b *Bot) discordMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-	if m.Content[:2] == "()" {
-		handlers.DiscordMessage(s, m)
-	}
+func (b *Bot) discordMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+	// if m.Author.ID == s.State.User.ID {
+	// 	return
+	// }
+	handlers.DiscordMessage(s, m)
 }
 
 func (b *Bot) ConnectTwitch() error {
 	log.Info("xd")
 	twitchClient := b.newTwitchClient()
 
+	twitchClient.Join("nouryqt")
+	twitchClient.Say("nouryqt", "xd")
 	twitchClient.OnPrivateMessage(b.onPrivateMesssage)
 
 	twitchClient.OnWhisperMessage(b.onWhisperMessage)
@@ -73,7 +72,7 @@ func (b *Bot) ConnectDiscord() error {
 
 	discordClient := b.newDiscordClient()
 
-	discordClient.AddHandler(b.discordMessageCreate)
+	discordClient.AddHandler(b.discordMessage)
 
 	discordClient.Identify.Intents = discordgo.IntentsGuildMessages
 

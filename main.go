@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
@@ -12,6 +13,8 @@ import (
 	"github.com/lyx0/nourybot-dc/db"
 	log "github.com/sirupsen/logrus"
 )
+
+var wg sync.WaitGroup
 
 func main() {
 	cfg := config.LoadConfig()
@@ -27,6 +30,8 @@ func main() {
 
 	bot := bot.NewBot(cfg, twitchClient, discordClient, sqlClient)
 
+	wg.Add(2)
+
 	go func() {
 		log.Info("Starting connection to Twitch")
 
@@ -35,6 +40,7 @@ func main() {
 			log.Fatal("Couldn't connect to Twitch", err)
 			os.Exit(1)
 		}
+		wg.Done()
 	}()
 
 	go func() {
@@ -45,7 +51,9 @@ func main() {
 			log.Fatal("Couldn't connect to Discord", err)
 			os.Exit(1)
 		}
+		wg.Done()
 	}()
+	wg.Wait()
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
