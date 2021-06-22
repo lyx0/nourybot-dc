@@ -9,8 +9,15 @@ import (
 )
 
 func DiscordMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+	// Test string
+	// log.Info(m.Message)
 
-	// Filter messages with less than 2 characters
+	// Do not act on bots own messages.
+	if m.Message.Author.ID == s.State.User.ID {
+		return
+	}
+
+	// Filter messages with less than 1 characters.
 	if len(m.Message.Content) >= 1 {
 
 		// Message started with !, probably a command.
@@ -25,23 +32,35 @@ func DiscordMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			log.Println("cmdParams:", cmdParams)
 
 			// Handle how many characters the message contains.
-			msgLen := len(strings.SplitN(m.Message.Content, " ", -1))
+
+			msgLen := len(strings.SplitN(m.Message.Content, " ", -2))
 			log.Println("msgLen: ", msgLen)
 
-			// log.Info(m.Message)
-			if m.Message.Author.ID == s.State.User.ID {
-				return
-			}
-			if m.Content == "!ping" {
+			// Finally check if the message contains a known
+			// command and act accordingly
+			switch commandName {
+			case "":
+				if msgLen == 1 {
+					s.ChannelMessageSend(m.ChannelID, "!")
+					return
+				}
+			case "8ball":
+				commands.Eightball(s, m)
+			case "coinflip":
+				commands.Coinflip(s, m)
+			case "cf":
+				commands.Coinflip(s, m)
+			case "coin":
+				commands.Coinflip(s, m)
+			case "ping":
 				s.ChannelMessageSend(m.ChannelID, "Pong!")
-			}
-			if m.Content == "!pong" {
+			case "pong":
 				s.ChannelMessageSend(m.ChannelID, "Ping!")
-			}
-			if m.Content == "!test" {
+			case "test":
 				commands.Test(s, m)
+			case "weather":
+				commands.Weather(s, m)
 			}
-
 		}
 	}
 }
