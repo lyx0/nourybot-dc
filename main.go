@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
@@ -11,8 +10,6 @@ import (
 	"github.com/lyx0/nourybot-dc/config"
 	log "github.com/sirupsen/logrus"
 )
-
-var wg sync.WaitGroup
 
 func main() {
 	cfg := config.LoadConfig()
@@ -24,8 +21,6 @@ func main() {
 
 	bot := bot.NewBot(cfg, discordClient)
 
-	wg.Add(2)
-
 	log.Info("Connecting to Discord")
 
 	err = bot.ConnectDiscord()
@@ -33,7 +28,6 @@ func main() {
 		log.Fatal("Couldn't connect to Discord", err)
 		os.Exit(1)
 	}
-	wg.Done()
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
