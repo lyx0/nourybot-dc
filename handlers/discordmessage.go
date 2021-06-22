@@ -39,11 +39,9 @@ func DiscordMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			// Finally check if the message contains a known
 			// command and act accordingly
 			switch commandName {
-			case "":
-				if msgLen == 1 {
-					s.ChannelMessageSend(m.ChannelID, "!")
-					return
-				}
+			case "!":
+				s.ChannelMessageSend(m.ChannelID, "!")
+
 			case "8ball":
 				commands.Eightball(s, m)
 			case "coinflip":
@@ -58,6 +56,12 @@ func DiscordMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 				s.ChannelMessageSend(m.ChannelID, "Ping!")
 			case "test":
 				commands.Test(s, m)
+			case "num":
+				if msgLen == 1 {
+					commands.RandomNumberFact(s, m)
+				} else if msgLen == 2 {
+					commands.NumberFact(s, m, cmdParams[1])
+				}
 			case "weather":
 				commands.Weather(s, m)
 			}
