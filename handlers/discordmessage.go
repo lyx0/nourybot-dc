@@ -62,6 +62,28 @@ func DiscordMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 				} else if msgLen == 2 {
 					commands.NumberFact(s, m, cmdParams[1])
 				}
+			case "numfact":
+				if msgLen == 1 {
+					commands.RandomNumberFact(s, m)
+				} else if msgLen == 2 {
+					commands.NumberFact(s, m, cmdParams[1])
+				}
+			case "number":
+				if msgLen == 1 {
+					commands.RandomNumberFact(s, m)
+				} else if msgLen == 2 {
+					commands.NumberFact(s, m, cmdParams[1])
+				}
+			case "numberfact":
+				if msgLen == 1 {
+					commands.RandomNumberFact(s, m)
+				} else if msgLen == 2 {
+					commands.NumberFact(s, m, cmdParams[1])
+				}
+			case "rxkcd":
+				commands.RandomXkcd(s, m)
+			case "xkcd":
+				commands.Xkcd(s, m)
 			case "weather":
 				commands.Weather(s, m)
 			}
