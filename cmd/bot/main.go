@@ -7,6 +7,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
+	dm "github.com/lyx0/nourybot-dc/internal/handlers/direct_message"
 	"go.uber.org/zap"
 )
 
@@ -51,13 +52,13 @@ func main() {
 		return
 	}
 
-	dg.AddHandler(messageCreate)
-	dg.Identify.Intents = discordgo.IntentsGuildMessages
-
 	app := &Application{
 		Dgs: dg,
 		Log: sugar,
 	}
+
+	dg.AddHandler(dm.Create)
+	dg.Identify.Intents = discordgo.IntentsGuildMessages
 
 	err = app.Dgs.Open()
 	if err != nil {
@@ -72,39 +73,4 @@ func main() {
 	<-sc
 
 	dg.Close()
-}
-
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	sugar := zap.NewExample().Sugar()
-	defer sugar.Sync()
-
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-
-	if m.Content != "ping" {
-		return
-	}
-
-	channel, err := s.UserChannelCreate(m.Author.ID)
-	if err != nil {
-		sugar.Errorw("Failed to create a DM channel",
-			"err:", err)
-		s.ChannelMessageSend(
-			m.ChannelID,
-			"Something went wrong while sending the DM!",
-		)
-		return
-	}
-
-	_, err = s.ChannelMessageSend(channel.ID, "Pong!")
-	if err != nil {
-		sugar.Errorw("Error while sending DM message:",
-			"err", err)
-		s.ChannelMessageSend(
-			m.ChannelID,
-			"Failed to send you a DM. "+
-				"Did you disable DMs in your privacy settings?",
-		)
-	}
 }
