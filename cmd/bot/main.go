@@ -14,6 +14,9 @@ import (
 	_ "github.com/lib/pq"
 	directMessage "github.com/lyx0/nourybot-dc/internal/handlers/direct_messages"
 	guildMessage "github.com/lyx0/nourybot-dc/internal/handlers/guild_messages"
+	slashcommands "github.com/lyx0/nourybot-dc/internal/slash_commands"
+	"github.com/zekrotja/ken"
+	"github.com/zekrotja/ken/store"
 	"go.uber.org/zap"
 )
 
@@ -29,9 +32,10 @@ type config struct {
 }
 
 type Application struct {
-	Dgs *discordgo.Session
-	Db  *sql.DB
-	Log *zap.SugaredLogger
+	Session *discordgo.Session
+	Ken     *ken.Ken
+	Db      *sql.DB
+	Log     *zap.SugaredLogger
 }
 
 var envFlag string
@@ -65,17 +69,9 @@ func main() {
 		"cfg.env", cfg.env)
 
 	cfg.discordToken = os.Getenv("DC_BOT_TOKEN")
-
 	cfg.db.maxOpenConns = 25
 	cfg.db.maxIdleConns = 25
 	cfg.db.maxIdleTime = "15m"
-
-	dg, err := discordgo.New("Bot " + cfg.discordToken)
-	if err != nil {
-		sugar.Errorw("Error creating Discord session:",
-			"err", err)
-		return
-	}
 
 	db, err := openDB(cfg, sugar)
 	if err != nil {
@@ -83,17 +79,45 @@ func main() {
 			"err", err)
 	}
 
-	app := &Application{
-		Dgs: dg,
-		Db:  db,
-		Log: sugar,
+	session, err := discordgo.New("Bot " + cfg.discordToken)
+	if err != nil {
+		sugar.Errorw("Error creating Discord session:",
+			"err", err)
+		return
+	}
+	defer session.Close()
+
+	k, err := ken.New(session, ken.Options{
+		CommandStore: store.NewDefault(),
+	})
+	if err != nil {
+		sugar.Fatalw("Error creating Ken:",
+			"err", err)
 	}
 
-	dg.AddHandler(directMessage.Create)
-	dg.AddHandler(guildMessage.Create)
-	dg.Identify.Intents = discordgo.IntentsGuildMessages
+	err = k.RegisterCommands(
+		new(slashcommands.TestCommand),
+		new(slashcommands.WeatherCommand),
+	)
+	if err != nil {
+		sugar.Fatalw("Error registering Ken command:",
+			"err", err)
+	}
 
-	err = app.Dgs.Open()
+	defer k.Unregister()
+
+	app := &Application{
+		Session: session,
+		Ken:     k,
+		Db:      db,
+		Log:     sugar,
+	}
+
+	session.AddHandler(directMessage.Create)
+	session.AddHandler(guildMessage.Create)
+	session.Identify.Intents = discordgo.IntentsGuildMessages
+
+	err = app.Session.Open()
 	if err != nil {
 		sugar.Errorw("Error opening Discord websocket connection:",
 			"err", err)
@@ -105,7 +129,6 @@ func main() {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
 
-	dg.Close()
 }
 
 func openDB(cfg config, sugar *zap.SugaredLogger) (*sql.DB, error) {
