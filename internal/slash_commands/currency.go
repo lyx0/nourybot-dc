@@ -36,7 +36,7 @@ func (c *CurrencyCommand) Options() []*discordgo.ApplicationCommandOption {
 			Type:        discordgo.ApplicationCommandOptionString,
 			Name:        "amount",
 			Required:    true,
-			Description: "Amount of money to convert in three letter abbreviation (USD, EUR, PLN)",
+			Description: "Amount of money to convert",
 		},
 		{
 			Type:        discordgo.ApplicationCommandOptionString,
@@ -48,7 +48,7 @@ func (c *CurrencyCommand) Options() []*discordgo.ApplicationCommandOption {
 			Type:        discordgo.ApplicationCommandOptionString,
 			Name:        "to",
 			Required:    true,
-			Description: "Currency to convert to",
+			Description: "Currency to convert to in three letter abbreviation (USD, EUR, PLN)",
 		},
 	}
 }
