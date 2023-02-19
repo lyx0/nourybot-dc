@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"flag"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,12 +12,13 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	dm "github.com/lyx0/nourybot-dc/internal/handlers/direct_message"
+	directMessage "github.com/lyx0/nourybot-dc/internal/handlers/direct_messages"
+	guildMessage "github.com/lyx0/nourybot-dc/internal/handlers/guild_messages"
 	"go.uber.org/zap"
 )
 
 type config struct {
-	environment  string
+	env          string
 	discordToken string
 	db           struct {
 		dsn          string
@@ -32,9 +34,14 @@ type Application struct {
 	Log *zap.SugaredLogger
 }
 
-func main() {
-	var cfg config
+var envFlag string
 
+func init() {
+	flag.StringVar(&envFlag, "env", "dev", "database connection to use: (dev/prod)")
+	flag.Parse()
+}
+
+func main() {
 	sugar := zap.NewExample().Sugar()
 	defer sugar.Sync()
 
@@ -44,16 +51,20 @@ func main() {
 			"err", err)
 	}
 
-	cfg.environment = "dev"
+	var cfg config
 
-	cfg.discordToken = os.Getenv("DC_BOT_TOKEN")
-
-	switch cfg.environment {
+	switch envFlag {
 	case "dev":
 		cfg.db.dsn = os.Getenv("LOCAL_DSN")
 	case "prod":
 		cfg.db.dsn = os.Getenv("SUPABASE_DSN")
 	}
+
+	sugar.Infow("Running in: ",
+		"envFlag", envFlag,
+		"cfg.env", cfg.env)
+
+	cfg.discordToken = os.Getenv("DC_BOT_TOKEN")
 
 	cfg.db.maxOpenConns = 25
 	cfg.db.maxIdleConns = 25
@@ -78,7 +89,8 @@ func main() {
 		Log: sugar,
 	}
 
-	dg.AddHandler(dm.Create)
+	dg.AddHandler(directMessage.Create)
+	dg.AddHandler(guildMessage.Create)
 	dg.Identify.Intents = discordgo.IntentsGuildMessages
 
 	err = app.Dgs.Open()
@@ -97,11 +109,7 @@ func main() {
 }
 
 func openDB(cfg config, sugar *zap.SugaredLogger) (*sql.DB, error) {
-	// Dev
-	// db, err := sql.Open("postgres", cfg.db.dsnDev)
-	// Prod
 	db, err := sql.Open("postgres", cfg.db.dsn)
-	// db, err := sql.Open("postgres", cfg.db.dsnDev)
 	if err != nil {
 		return nil, err
 	}
