@@ -98,6 +98,7 @@ func main() {
 	err = k.RegisterCommands(
 		new(slashcommands.TestCommand),
 		new(slashcommands.WeatherCommand),
+		new(slashcommands.CurrencyCommand),
 	)
 	if err != nil {
 		sugar.Fatalw("Error registering Ken command:",
