@@ -99,6 +99,9 @@ func main() {
 		new(slashcommands.TestCommand),
 		new(slashcommands.WeatherCommand),
 		new(slashcommands.CurrencyCommand),
+		new(slashcommands.XkcdLatestCommand),
+		new(slashcommands.XkcdRandomCommand),
+		new(slashcommands.XkcdNumberCommand),
 	)
 	if err != nil {
 		sugar.Fatalw("Error registering Ken command:",
