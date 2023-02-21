@@ -100,6 +100,7 @@ func main() {
 		new(slashcommands.WeatherCommand),
 		new(slashcommands.CurrencyCommand),
 		new(slashcommands.XkcdCommand),
+		new(slashcommands.InfoCommand),
 	)
 	if err != nil {
 		sugar.Fatalw("Error registering Ken command:",
