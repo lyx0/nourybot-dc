@@ -57,7 +57,7 @@ func Random() (num, title, image string) {
 	return fmt.Sprint(responseObject.Num), responseObject.SafeTitle, responseObject.Img
 }
 
-func Number(comicNum string) (num, title, image string) {
+func Specific(comicNum string) (num, title, image string) {
 	sugar := zap.NewExample().Sugar()
 	defer sugar.Sync()
 

@@ -107,7 +107,7 @@ func (c *XkcdCommand) random(ctx ken.SubCommandContext) (err error) {
 func (c *XkcdCommand) specific(ctx ken.SubCommandContext) (err error) {
 	comicNum := ctx.Options().GetByName("number").IntValue()
 
-	num, title, img := xkcd.Number(fmt.Sprint(comicNum))
+	num, title, img := xkcd.Specific(fmt.Sprint(comicNum))
 	msg := fmt.Sprint("Xkcd comic number #", num, " Title: ", title, " ", img)
 
 	err = ctx.Respond(&discordgo.InteractionResponse{
