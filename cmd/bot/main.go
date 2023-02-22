@@ -102,6 +102,7 @@ func main() {
 		new(slashcommands.XkcdCommand),
 		new(slashcommands.InfoCommand),
 		new(slashcommands.TwitchCommand),
+		new(slashcommands.CoinflipCommand),
 	)
 	if err != nil {
 		sugar.Fatalw("Error registering Ken command:",
